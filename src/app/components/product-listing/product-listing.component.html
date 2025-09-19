@@ -1,0 +1,104 @@
+<div class="product-listing-container">
+  <h1>Sản phẩm của chúng tôi</h1>
+  
+  <!-- Filters Section -->
+  <div class="filters">
+    <div class="filter-section">
+      <div class="search-bar">
+        <input 
+          type="text" 
+          placeholder="Tìm kiếm sản phẩm..." 
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()">
+        <button 
+          (click)="onSearch()" 
+          [disabled]="isLoading">
+          {{ isLoading ? 'Đang tìm...' : 'Tìm kiếm' }}
+        </button>
+      </div>
+    </div>
+    
+    <div class="filter-section">
+      <div class="category-filters">
+        <button 
+          class="category-button"
+          (click)="clearFilters()">
+          Tất cả
+        </button>
+        <button 
+          *ngFor="let category of categories"
+          class="category-button"
+          (click)="filterByCategory(category)">
+          {{ category }}
+        </button>
+        <button 
+          class="clear-filters"
+          (click)="clearFilters()"
+          *ngIf="searchTerm || filteredProducts.length < products.length">
+          Xóa bộ lọc
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-message" *ngIf="errorMessage">
+    {{ errorMessage }}
+    <button (click)="loadProducts()" class="btn" style="margin-left: 1rem;">
+      Thử lại
+    </button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <div>Đang tải sản phẩm...</div>
+  </div>
+
+  <!-- No Products Message -->
+  <div class="no-products" *ngIf="!isLoading && !errorMessage && !hasProducts">
+    <p>Không tìm thấy sản phẩm nào.</p>
+    <button (click)="clearFilters()" class="btn">Xem tất cả sản phẩm</button>
+  </div>
+
+  <!-- Product Grid -->
+  <div class="product-grid" *ngIf="!isLoading && !errorMessage && hasProducts">
+    <div 
+      class="product-card" 
+      *ngFor="let product of filteredProducts"
+      [attr.data-product-id]="product.id">
+      
+      <div class="product-image" [class.no-image]="!product.imageUrl">
+        <span *ngIf="!product.imageUrl">{{ product.name }}</span>
+        <img 
+          *ngIf="product.imageUrl" 
+          [src]="product.imageUrl" 
+          [alt]="product.name"
+          (error)="onImageError($event)">
+        
+        <div class="stock-badge" 
+             [class.in-stock]="product.inStock"
+             [class.out-of-stock]="!product.inStock">
+          {{ product.inStock ? 'Còn hàng' : 'Hết hàng' }}
+        </div>
+      </div>
+      
+      <div class="product-info">
+        <div class="product-name">{{ product.name }}</div>
+        <div class="product-description">{{ product.description }}</div>
+        
+        <div class="product-meta">
+          <div class="product-price">{{ formatPrice(product.price) }}</div>
+          <div class="product-category">{{ product.category }}</div>
+        </div>
+        
+        <button 
+          class="add-to-cart"
+          [disabled]="!product.inStock"
+          (click)="addToCart(product)">
+          {{ product.inStock ? 'Thêm vào giỏ' : 'Hết hàng' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
